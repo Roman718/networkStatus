@@ -1,26 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState, useEffect} from 'react';
+import axios from "axios";
+import Card from "./components/card";
+import {NetworkApiResponse} from "./types"
+import './style.css'
 
-function App() {
+const App = () => {
+  const [dataObj, setDataObj] = useState<NetworkApiResponse>({});
+  useEffect(() => {
+    axios.get<NetworkApiResponse>('https://app.subsocial.network/subid/api/v1/chains/properties')
+        .then(({data}) => setDataObj(data))
+  }, []);
+  const filteredDataArr = Object.entries(dataObj).filter(([networkName, networkData]) => {
+    return networkData.hasOwnProperty('tokenDecimals') && networkData.hasOwnProperty('tokenSymbol')
+  });
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div>
+        <div className='grid'>
+          {filteredDataArr.map(([networkName, networkData]) => (
+              <Card key={networkName} name={networkName} img={networkData.icon}/>
+          ))}
+        </div>
+      </div>
   );
-}
+};
 
 export default App;
